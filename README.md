@@ -29,7 +29,32 @@ Experiments were conducted using some datasets from UCI such as [Adult](https://
 ## Usage
 
 ```
-z = 1
+usage: main.py [-h] [-dataset {adult,wine,titanic,autompg}]
+               [-stl_epochs STL_EPOCHS] [-mtl_epochs MTL_EPOCHS] [-regression]
+               [-runs RUNS] [-es_patience ES_PATIENCE]
+               [-pl_patience PL_PATIENCE] [-verbose] [-tune_arch]
+               [-show_full_scores] [-save_plots]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -dataset {adult,wine,titanic,autompg}
+                        Name of dataset.
+  -stl_epochs STL_EPOCHS
+                        Number of STL training epochs.
+  -mtl_epochs MTL_EPOCHS
+                        Number of MTL training epochs.
+  -regression           Whether the task is regression or (binary)
+                        classification.
+  -runs RUNS            Number of runs.
+  -es_patience ES_PATIENCE
+                        Early Stopping patience.
+  -pl_patience PL_PATIENCE
+                        Reduce learning rate on plateau patience.
+  -verbose              Print training process.
+  -tune_arch            Tune the MLP architecture.
+  -show_full_scores     Prints a Pandas DataFrame with multiple scores in the
+                        MTL setting.
+  -save_plots           Whether to save plots of Accuracy/MSE-Fidelity.
 ```
 
 
