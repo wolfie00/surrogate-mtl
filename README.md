@@ -28,4 +28,8 @@ Experiments were conducted using some datasets from UCI such as [Adult](https://
 
 ## Usage
 
+```python
+z = 1
+```
+
 
