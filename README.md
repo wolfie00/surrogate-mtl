@@ -19,12 +19,11 @@ Experiments were conducted using some datasets from UCI such as [Adult](https://
 
 | File | Content description |
 |---------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [models/tree.py](models/tree.py)    | Implementation of SBDT model in `tf.keras` with all details as stated in the [paper](https://arxiv.org/pdf/1711.09784.pdf). Some parts such as loss regularization term calculation are done in pure TensorFlow. The rest is encapsulated into keras custom layers. |
-|            | Due to lack of keras' flexibility, SBDT model is not save-able using keras' serialization methods so `tf.Saver` is used instead. This also means that keras callback for [ModelCheckpoint](https://keras.io/callbacks/#modelcheckpoint) won't work with this implementation (unless the model is re-written to avoid using `tf.Tensor` objects as keras `Layer` arguments). |
-|            | Due to use of [moving averages](https://www.tensorflow.org/api_docs/python/tf/train/ExponentialMovingAverage) in calculation of penalty terms, custom two-step initialization of model parameters is required and model training (evaluation of `tree.loss` tensorflow graph op) is `batch_size`-dependent.  This also means, that `batch_size % train_data_size == 0` must hold, otherwise shape mismatch will be encountered at the end of training epoch (keras will feed the remainder as a smaller minibatch). |
-| [models/convnet.py](models/convnet.py) | Implementation of basic convolutional NN model in `tf.keras` as given by keras [MNIST-CNN](https://github.com/keras-team/keras/blob/master/examples/mnist_cnn.py) basic example. |
-| [models/utils.py](models/utils.py)   | Utility functions for re-setting tensorflow session and visualizing model parameters. |
-| [makegif.sh](makegif.sh) | Converts directory of images into animation and labels frames based on folder name and file names. See [mnist.ipynb](./mnist.ipynb) for exemplary usage. |
+| [models.py](models.py)    | Implementation of STL baselines and MTL-based model classes in `tf.keras`. |
+| [trainer.py](trainer.py) | Implementation of a `Trainer` class used to train the models. |
+| [evaluator.py](evaluator.py)   | Implementation of an `Evaluator` class used to evaluate models using several metrics. |
+| [experiment.py](experiment.py) | Class containing the logic for conducting the experiments. |
+| [main.py](main.py) | Class that parses command-line arguments and calls `Experiment` from `experiment.py`. |
 | [data_files](data_files/)    | Data files for the [Adult](https://archive.ics.uci.edu/dataset/2/adult) dataset.
 
 ## Usage
