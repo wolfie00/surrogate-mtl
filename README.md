@@ -25,7 +25,7 @@ Experiments were conducted using some datasets from UCI such as [Adult](https://
 | [models/convnet.py](models/convnet.py) | Implementation of basic convolutional NN model in `tf.keras` as given by keras [MNIST-CNN](https://github.com/keras-team/keras/blob/master/examples/mnist_cnn.py) basic example. |
 | [models/utils.py](models/utils.py)   | Utility functions for re-setting tensorflow session and visualizing model parameters. |
 | [makegif.sh](makegif.sh) | Converts directory of images into animation and labels frames based on folder name and file names. See [mnist.ipynb](./mnist.ipynb) for exemplary usage. |
-| [data_files](data_files/)    | Saved model checkpoints (for easier reproducibility) and illustrative images / animations.
+| [data_files](data_files/)    | Data files for the [Adult](https://archive.ics.uci.edu/dataset/2/adult) dataset.
 
 ## Usage
 
