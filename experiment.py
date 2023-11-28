@@ -19,9 +19,54 @@ class Experiment:
         self.tune_arch = args.tune_arch
         self.show_full_scores = args.show_full_scores
         self.lime_instance = None
+        self.save_plots = None
 
         self.stl_model_trainer, self.mtl_model_trainer = None, None
         self.stl_model_evaluator, self.mtl_model_evaluator = None, None
+
+    def plot(self, full_runs, stl_score, stl_fid, scores_list, fid_list):
+        import matplotlib.pyplot as plt
+        import pickle
+        from paretoset import paretoset
+
+        pareto_input = full_runs[['Mean Fidelity',
+                                  f'Mean {"MSE" if self.regression else "Accuracy"}']].values.astype(float)
+        pareto_mask = paretoset(pareto_input, sense=['min', f'{"min" if self.regression else "max"}']).flatten()
+        pareto_mask_w_stl = np.insert(pareto_mask, 0, False)
+
+        xs = [stl_score] + scores_list
+        ys = [stl_fid] + fid_list
+
+        max_score = max(xs)
+        max_fid = max(ys)
+
+        colors = pickle.load(open('fig_colors.pkl', 'rb'))
+
+        labels = ['STL', 'α = 0.1', 'α = 0.2', 'α = 0.3', 'α = 0.4',
+                  'α = 0.5', 'α = 0.6', 'α = 0.7', 'α = 0.8', 'α = 0.9']
+
+        markers = ['X'] + ['o' for _ in range(len(labels) - 1)]
+        fig = plt.figure(figsize=(8, 6), )
+        plt.plot(xs[1:], ys[1:], '--', zorder=1, alpha=0.4)  # do not include STL
+        for i in range(len(labels)):
+            s = 100 if i == 0 or pareto_mask_w_stl[i] else None
+            e = 'black' if pareto_mask_w_stl[i] else 'face'
+            plt.scatter(xs[i], ys[i], c=np.array(colors[i]).reshape(1, -1), label=labels[i], zorder=2,
+                        marker=markers[i], s=s, edgecolors=e)
+
+        upper_limit = 0.01 if self.regression else 0.1
+        lower_limit = 0.01
+        plt.xlim(stl_score - abs(stl_score - (max_score + lower_limit)),
+                 stl_score + abs(stl_score - (max_score + upper_limit)))
+        plt.ylim(0,
+                 stl_fid + abs(stl_fid - (max_fid + 0.01)))
+        plt.xlabel('Accuracy')
+        plt.ylabel('Global Fidelity')
+        plt.grid()
+        plt.legend()
+        plt.title('Adult')
+
+        fig.savefig(self.dataset_name + '_plot.pdf', bbox_inches='tight')
 
     def run(self):
 
@@ -124,7 +169,7 @@ class Experiment:
         stl_local_fid = self.stl_model_evaluator.local_fidelity(
             train_points=x_train,
             test_points=x_test_lime_sample if self.dataset_name == 'housing' or self.dataset_name == 'adult'
-            else x_test_lime,
+            else x_test_lime, column_transformer=column_transformer,
             e=self.lime_instance,
             predict_function=stl_lime_predict_fn, categorical_features=categorical_features
         )
@@ -232,6 +277,7 @@ class Experiment:
                                                                 if self.dataset_name == 'housing'
                                                                 or self.dataset_name == 'adult' else x_test_lime,
                                                                 e=self.lime_instance,
+                                                                column_transformer=column_transformer,
                                                                 categorical_features=categorical_features,
                                                                 predict_function=mtl_lime_predict_fn, use_tqdm=False, )
             mtl_test_local_fid.append(local_fid)
@@ -251,6 +297,9 @@ class Experiment:
 
         if self.show_full_scores:
             print(full_runs)
+
+        if self.save_plots:
+            self.plot(full_runs, stl_score, stl_fid, mtl_mean_test_scores1, mtl_mean_test_fid)
 
         # mtl_mean_local_test_fid = list()
         # mtl_std_local_test_fid = list()

@@ -53,7 +53,7 @@ class Evaluator:
 
     def local_fidelity(self, train_points, test_points, e, surrogate=None,
                        fit_surrogate=True, num_neighbors=10, use_tqdm=True,
-                       predict_function=None, categorical_features=None):
+                       predict_function=None, categorical_features=None, column_transformer=None):
         if predict_function is None:
             predict_function = lambda z: self.black_box.predict(z, verbose=0).flatten()
         total_local_fidelity = 0.
@@ -84,7 +84,8 @@ class Evaluator:
             weights = np.insert(weights, 0, intercept)  # add bias
             g = np.dot(np.insert(neighbors, 0, 1, axis=1), weights).flatten()
 
-            f = self.black_box.predict(neighbors, verbose=0).flatten()  # len(neighbors)
+            f = self.black_box.predict(column_transformer(neighbors) if column_transformer is not None else neighbors,
+                                       verbose=0).flatten()  # len(neighbors)
             fid = (g - f) ** 2
             total_local_fidelity += np.mean(fid)  # neighborhood fidelity
 
