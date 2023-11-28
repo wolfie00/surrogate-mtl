@@ -10,6 +10,8 @@ Source code for the paper "Exploring Multi-Task Learning for Explainability" pre
 - Pandas
 - tqdm
 - lime (https://github.com/marcotcr/lime/tree/master)
+- If you want to create plots you will also need
+    - pickle
 
 ## Datasets 
 
