@@ -59,7 +59,7 @@ optional arguments:
 
 For example: 
 ```
-python main.py  -show_full_scores -runs=1 -dataset='adult'
+python main.py -show_full_scores -runs=1 -dataset='adult'
 ```
 
 
