@@ -12,6 +12,8 @@ Source code for the paper "Exploring Multi-Task Learning for Explainability" pre
 - lime (https://github.com/marcotcr/lime/tree/master)
 - If you want to create plots you will also need
     - pickle
+    - matplotlib
+    - paretoset (https://github.com/tommyod/paretoset)
 
 ## Datasets 
 
