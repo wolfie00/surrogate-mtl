@@ -60,6 +60,8 @@ class Evaluator:
         iterator = test_points
         if use_tqdm:
             iterator = tqdm(test_points)
+
+        # partially adapted from: https://github.com/GDPlumb/ExpO/blob/master/Code/ExplanationMetrics.py
         for x in iterator:
             explanation = e.explain_instance(x, predict_function, save_surrogate=False,
                                              model_regressor=surrogate, fit_surrogate=fit_surrogate,
