@@ -60,11 +60,11 @@ class Experiment:
                  stl_score + abs(stl_score - (max_score + upper_limit)))
         plt.ylim(0,
                  stl_fid + abs(stl_fid - (max_fid + 0.01)))
-        plt.xlabel('Accuracy')
+        plt.xlabel(f'{"MSE" if self.regression else "Accuracy"}')
         plt.ylabel('Global Fidelity')
         plt.grid()
         plt.legend()
-        plt.title('Adult')
+        plt.title(self.dataset_name)
 
         fig.savefig(self.dataset_name + '_plot.pdf', bbox_inches='tight')
 
