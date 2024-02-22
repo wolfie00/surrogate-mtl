@@ -1,5 +1,5 @@
 # surrogate-mtl
-Source code for the paper "Exploring Multi-Task Learning for Explainability" presented at ECAI's [XI-ML 2023 workshop](http://www.cslab.cc/xi-ml-2023/).
+Source code for the paper ["Exploring Multi-Task Learning for Explainability"](https://link.springer.com/chapter/10.1007/978-3-031-50396-2_20) presented at ECAI's [XI-ML 2023 workshop](http://www.cslab.cc/xi-ml-2023/).
 
 ## Dependencies
 
