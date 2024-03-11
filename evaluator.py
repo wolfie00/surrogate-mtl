@@ -55,13 +55,12 @@ class Evaluator:
                        fit_surrogate=True, num_neighbors=10, use_tqdm=True,
                        predict_function=None, categorical_features=None, column_transformer=None):
         if predict_function is None:
-            predict_function = lambda z: self.black_box.predict(z, verbose=0).flatten()
+            def predict_function(z): return self.black_box.predict(z, verbose=0).flatten()
+            # predict_function = lambda z: self.black_box.predict(z, verbose=0).flatten()
         total_local_fidelity = 0.
         iterator = test_points
         if use_tqdm:
             iterator = tqdm(test_points)
-
-        # partially adapted from: https://github.com/GDPlumb/ExpO/blob/master/Code/ExplanationMetrics.py
         for x in iterator:
             explanation = e.explain_instance(x, predict_function, save_surrogate=False,
                                              model_regressor=surrogate, fit_surrogate=fit_surrogate,
@@ -86,8 +85,9 @@ class Evaluator:
             weights = np.insert(weights, 0, intercept)  # add bias
             g = np.dot(np.insert(neighbors, 0, 1, axis=1), weights).flatten()
 
-            f = self.black_box.predict(column_transformer(neighbors) if column_transformer is not None else neighbors,
-                                       verbose=0).flatten()  # len(neighbors)
+            f = self.black_box.predict(column_transformer.transform(neighbors)
+                                       if column_transformer is not None else neighbors,
+                                       batch_size=1, verbose=0).flatten()  # len(neighbors)
             fid = (g - f) ** 2
             total_local_fidelity += np.mean(fid)  # neighborhood fidelity
 

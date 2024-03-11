@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 
 
-def get_adult(for_lime):
+def get_adult(for_lime, one_hot):
     column_names = ['age', 'workclass', 'fnlwgt', 'education', 'education-num',
                     'marital-status', 'occupation', 'relationship', 'race',
                     'sex', 'capital-gain', 'capital-loss', 'hours-per-week',
@@ -67,8 +67,8 @@ def get_adult(for_lime):
         ('one_hot', OneHotEncoder(), categorical_features),
     ])
 
-    x_train = ct.fit_transform(x_train.values.astype(float))
-    x_test = ct.transform(x_test.values.astype(float))
+    x_train = ct.fit_transform(x_train.values.astype(float)).toarray()
+    x_test = ct.transform(x_test.values.astype(float)).toarray()
 
     print('Shape of testing data (post One-Hot Encoding):', x_train.shape)
     print('Shape of testing data (post One-Hot Encoding):', x_test.shape)
@@ -80,9 +80,14 @@ def get_adult(for_lime):
     y_test = y_test.map({'<=50K.': 0, '>50K.': 1})
 
     if not for_lime:
-        return x_train, y_train, x_test, y_test, None, None, None
+        if one_hot:
+            return x_train, y_train, x_test, y_test, None, None, None
+        else:
+            sc = StandardScaler()
+            return sc.fit_transform(x_train_exp), y_train, sc.transform(x_test_exp), y_test, None, None, None
     else:
-        return x_train_exp, y_train, x_test_exp, y_test, list(train_df.columns.values)[:-1], categorical_names, ct
+        return x_train_exp, y_train, x_test_exp, y_test, list(train_df.columns.values)[:-1], categorical_names, \
+               ct if one_hot else None
 
 
 def get_housing(test_size):
@@ -240,7 +245,7 @@ def get_data(name='housing', test_size=0.2, for_lime=False):
     if name == 'housing':
         return get_housing(test_size)
     elif name == 'adult':
-        return get_adult(for_lime)
+        return get_adult(for_lime, one_hot=False)
     elif name == 'autompg':
         return get_autompg(test_size, for_lime)
     elif name == 'titanic':

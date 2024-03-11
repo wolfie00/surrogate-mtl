@@ -1,5 +1,7 @@
 import os
 
+import numpy as np
+
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
 
 import tensorflow as tf
@@ -23,26 +25,33 @@ class Trainer:
 
     def train_surrogate(self, black_box):
         y_train_surrogate = black_box.predict(self.x_train, verbose=1).flatten()
+        if not self.regression:
+            y_train_surrogate = np.where(y_train_surrogate >= 0.5, 1, 0).flatten()
         if self.surrogate is None:
             self.surrogate = LinearRegression() if self.regression else LogisticRegression()
         self.surrogate.fit(self.x_train, y_train_surrogate)
         return self.surrogate
 
-    def train(self, epochs=100, tune=False, es_patience=3, verbose=1,
-              pl_patience=1):
+    def train(self, epochs=100, opt='adam', tune=False, es_patience=3, verbose=1, pl_patience=1,
+              es_metric='val_loss', pl_metric='val_loss'):
         loss = tf.keras.losses.LogCosh() if self.regression else tf.keras.losses.BinaryCrossentropy()
-        optimizer = tf.keras.optimizers.Adam()
+        optimizer = opt
         metrics = ['mean_absolute_error', 'mean_squared_error',
                    tfa.metrics.RSquare()] if self.regression else ['binary_accuracy',
                                                                    tfa.metrics.F1Score(num_classes=1,
                                                                                        average='macro',
                                                                                        threshold=0.5)]
 
-        callbacks = [tf.keras.callbacks.EarlyStopping(monitor='val_loss', verbose=verbose,
+        callbacks = [tf.keras.callbacks.EarlyStopping(monitor=es_metric, verbose=verbose,
                                                       patience=es_patience,
                                                       mode='min'),
                      tf.keras.callbacks.ReduceLROnPlateau(patience=pl_patience, verbose=verbose,
-                                                          monitor='val_loss',
+                                                          monitor=pl_metric,
+                                                          mode='min')]
+
+        if not hasattr(optimizer, 'lr'):
+            callbacks = [tf.keras.callbacks.EarlyStopping(monitor=es_metric, verbose=verbose,
+                                                          patience=es_patience,
                                                           mode='min')]
 
         if not tune:
@@ -60,7 +69,7 @@ class Trainer:
                 max_trials=15,
                 # max_epochs=100,
                 executions_per_trial=1,
-                # overwrite=True,
+                overwrite=True,
                 # directory='results',
                 # project_name='...',
             )
@@ -71,7 +80,7 @@ class Trainer:
                                                               patience=es_patience, verbose=verbose)
             tuner.search(x=self.x_train, y=self.y_train,
                          epochs=epochs, validation_split=0.1,
-                         callbacks=[early_stopping], verbose=1)
+                         callbacks=[early_stopping], verbose=verbose)
 
             self.model = tuner.get_best_models()[0]
 

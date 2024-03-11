@@ -8,7 +8,7 @@ parser.add_argument('-stl_epochs', default=100,
                     help='Number of STL training epochs.', type=int)
 parser.add_argument('-mtl_epochs', default=100,
                     help='Number of MTL training epochs.', type=int)
-parser.add_argument('-regression', default=True, action='store_false',
+parser.add_argument('-regression', default=False, action='store_true',
                     help='Whether the task is regression or (binary) classification.')
 parser.add_argument('-runs', type=int, default=5,
                     help='Number of runs.')
